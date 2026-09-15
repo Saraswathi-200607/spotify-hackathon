@@ -47,13 +47,14 @@ function Login({ register = false }) {
         password
       });
 
+      // Save authentication information
       localStorage.setItem("token", data.token);
       localStorage.setItem("userId", data.userId);
       localStorage.setItem("plan", data.plan);
 
-      // Use React Router instead of window.location.href
-   
-window.location.reload();
+      // Reload so App reads the newly stored token
+      window.location.reload();
+
     } catch (err) {
       console.error("Authentication failed:", err);
 
@@ -179,9 +180,7 @@ function Layout({
   return (
     <div className="app">
 
-      {/* ==================================================
-          SIDEBAR
-      ================================================== */}
+      {/* SIDEBAR */}
 
       <aside>
 
@@ -238,21 +237,15 @@ function Layout({
 
       </aside>
 
-      {/* ==================================================
-          MAIN CONTENT
-      ================================================== */}
+      {/* MAIN CONTENT */}
 
       <main>
         {children}
       </main>
 
-      {/* ==================================================
-          CUSTOM MUSIC PLAYER
-      ================================================== */}
+      {/* MUSIC PLAYER */}
 
       <footer className="player">
-
-        {/* SONG INFORMATION */}
 
         <div className="now">
 
@@ -283,8 +276,6 @@ function Layout({
 
         </div>
 
-        {/* PLAY / PAUSE */}
-
         <button
           className="play-btn"
           onClick={togglePlay}
@@ -307,8 +298,6 @@ function Layout({
             />
           )}
         </button>
-
-        {/* PROGRESS BAR */}
 
         <div className="player-bar">
 
@@ -340,8 +329,6 @@ function Layout({
           </span>
 
         </div>
-
-        {/* VOLUME */}
 
         <div className="volume-control">
 
@@ -990,10 +977,6 @@ function HistoryPage() {
 
 function Protected() {
 
-  // IMPORTANT:
-  // React Router navigation is used for logout.
-  const navigate = useNavigate();
-
   const [currentSong, setCurrentSong] =
     useState(null);
 
@@ -1054,18 +1037,14 @@ function Protected() {
       return;
     }
 
-    // Stop current song
     audio.pause();
 
-    // Reset old state
     setPlaying(false);
     setCurrentTime(0);
     setDuration(0);
 
-    // Set new song
     setCurrentSong(song);
 
-    // Set audio source
     audio.src = song.audioUrl;
 
     audio.volume = volume;
@@ -1076,7 +1055,6 @@ function Protected() {
       "Starting audio..."
     );
 
-    // Start audio
     audio
       .play()
       .then(() => {
@@ -1112,9 +1090,7 @@ function Protected() {
 
       });
 
-    // ==================================================
-    // BACKEND PLAY API
-    // ==================================================
+    // Backend play API
 
     api
       .post(
@@ -1392,13 +1368,15 @@ function Protected() {
       audio.load();
     }
 
-    // Remove login information
+    // Remove authentication information
     localStorage.removeItem("token");
     localStorage.removeItem("userId");
     localStorage.removeItem("plan");
 
-    // Navigate using React Router
-    navigate("/login");
+    // IMPORTANT:
+    // Force a full page reload so the App
+    // reads the new authentication state.
+    window.location.href = "/login";
   }
 
   // ====================================================
@@ -1407,10 +1385,6 @@ function Protected() {
 
   return (
     <>
-      {/* =================================================
-          REAL AUDIO ELEMENT
-      ================================================= */}
-
       <audio
         ref={audioRef}
         preload="auto"
