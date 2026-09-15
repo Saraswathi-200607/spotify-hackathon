@@ -27,7 +27,7 @@ import api from "./api";
 // LOGIN / REGISTER
 // ======================================================
 
-function Login({ register = false }) {
+function Login({ register = false, onLogin }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -53,6 +53,7 @@ function Login({ register = false }) {
       localStorage.setItem("plan", data.plan);
 
       // Reload so App reads the newly stored token
+      onLogin();
       navigate("/");
 
     } catch (err) {
@@ -975,7 +976,7 @@ function HistoryPage() {
 // PROTECTED APPLICATION
 // ======================================================
 
-function Protected() {
+function Protected({ onLogout }) {
   const navigate = useNavigate();
   const [currentSong, setCurrentSong] =
     useState(null);
@@ -1368,6 +1369,7 @@ function logout() {
   localStorage.removeItem("userId");
   localStorage.removeItem("plan");
 
+  onLogout();
   navigate("/login");
 }
 
@@ -1454,9 +1456,17 @@ function logout() {
 // ======================================================
 
 export default function App() {
+  const [logged, setLogged] = useState(
+    !!localStorage.getItem("token")
+  );
 
-  const logged =
-    !!localStorage.getItem("token");
+  function handleLogin() {
+    setLogged(true);
+  }
+
+  function handleLogout() {
+    setLogged(false);
+  }
 
   return (
     <Routes>
@@ -1467,7 +1477,7 @@ export default function App() {
           logged ? (
             <Navigate to="/" />
           ) : (
-            <Login />
+            <Login onLogin={handleLogin} />
           )
         }
       />
@@ -1478,7 +1488,10 @@ export default function App() {
           logged ? (
             <Navigate to="/" />
           ) : (
-            <Login register />
+            <Login
+              register
+              onLogin={handleLogin}
+            />
           )
         }
       />
@@ -1487,7 +1500,7 @@ export default function App() {
         path="/*"
         element={
           logged ? (
-            <Protected />
+            <Protected onLogout={handleLogout} />
           ) : (
             <Navigate to="/login" />
           )
