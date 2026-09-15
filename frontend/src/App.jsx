@@ -53,7 +53,7 @@ function Login({ register = false }) {
       localStorage.setItem("plan", data.plan);
 
       // Reload so App reads the newly stored token
-      window.location.reload();
+      navigate("/");
 
     } catch (err) {
       console.error("Authentication failed:", err);
@@ -976,7 +976,7 @@ function HistoryPage() {
 // ======================================================
 
 function Protected() {
-
+  const navigate = useNavigate();
   const [currentSong, setCurrentSong] =
     useState(null);
 
@@ -1368,7 +1368,7 @@ function logout() {
   localStorage.removeItem("userId");
   localStorage.removeItem("plan");
 
-  window.location.href = "/login";
+  navigate("/login");
 }
 
   // ====================================================
