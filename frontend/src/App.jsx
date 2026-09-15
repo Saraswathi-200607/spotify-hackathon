@@ -52,7 +52,8 @@ function Login({ register = false }) {
       localStorage.setItem("plan", data.plan);
 
       // Use React Router instead of window.location.href
-      navigate("/");
+   
+window.location.reload();
     } catch (err) {
       console.error("Authentication failed:", err);
 
