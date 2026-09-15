@@ -51,7 +51,8 @@ function Login({ register = false }) {
       localStorage.setItem("userId", data.userId);
       localStorage.setItem("plan", data.plan);
 
-      window.location.href = "/";
+      // Use React Router instead of window.location.href
+      navigate("/");
     } catch (err) {
       console.error("Authentication failed:", err);
 
@@ -988,6 +989,10 @@ function HistoryPage() {
 
 function Protected() {
 
+  // IMPORTANT:
+  // React Router navigation is used for logout.
+  const navigate = useNavigate();
+
   const [currentSong, setCurrentSong] =
     useState(null);
 
@@ -1378,14 +1383,21 @@ function Protected() {
     const audio =
       audioRef.current;
 
+    // Stop music
     if (audio) {
       audio.pause();
+      audio.currentTime = 0;
+      audio.removeAttribute("src");
+      audio.load();
     }
 
-    localStorage.clear();
+    // Remove login information
+    localStorage.removeItem("token");
+    localStorage.removeItem("userId");
+    localStorage.removeItem("plan");
 
-    window.location.href =
-      "/login";
+    // Navigate using React Router
+    navigate("/login");
   }
 
   // ====================================================
@@ -1396,8 +1408,6 @@ function Protected() {
     <>
       {/* =================================================
           REAL AUDIO ELEMENT
-
-          It is invisible but this is the actual player.
       ================================================= */}
 
       <audio
