@@ -13,7 +13,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.List;
+import java.util.Arrays;
 
 @Configuration
 public class SecurityConfig {
@@ -50,25 +50,10 @@ public class SecurityConfig {
 
                         .anyRequest().authenticated())
 
-                /*
-                 * Authentication first.
-                 *
-                 * AuthFilter validates JWT and puts:
-                 * USER_ID
-                 * PLAN
-                 *
-                 * into the request.
-                 */
                 .addFilterBefore(
                         authFilter,
                         UsernamePasswordAuthenticationFilter.class)
 
-                /*
-                 * Rate limiter runs AFTER AuthFilter.
-                 *
-                 * Therefore the rate limiter can read
-                 * the authenticated user's ID and plan.
-                 */
                 .addFilterAfter(
                         rateLimiterContractFilter,
                         AuthFilter.class);
@@ -81,11 +66,22 @@ public class SecurityConfig {
 
         CorsConfiguration config = new CorsConfiguration();
 
+        /*
+         * Allow the Render frontend.
+         *
+         * Set FRONTEND_URL in Render environment variables.
+         */
+        String frontendUrl = System.getenv("FRONTEND_URL");
+
+        if (frontendUrl == null || frontendUrl.isBlank()) {
+            frontendUrl = "http://localhost:5173";
+        }
+
         config.setAllowedOrigins(
-                List.of("http://localhost:5173"));
+                Arrays.asList(frontendUrl));
 
         config.setAllowedMethods(
-                List.of(
+                Arrays.asList(
                         "GET",
                         "POST",
                         "PUT",
@@ -93,7 +89,7 @@ public class SecurityConfig {
                         "OPTIONS"));
 
         config.setAllowedHeaders(
-                List.of("*"));
+                Arrays.asList("*"));
 
         config.setAllowCredentials(true);
 
