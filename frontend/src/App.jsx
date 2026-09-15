@@ -1354,30 +1354,22 @@ function Protected() {
   // ====================================================
   // LOGOUT
   // ====================================================
+function logout() {
+  const audio = audioRef.current;
 
-  function logout() {
-
-    const audio =
-      audioRef.current;
-
-    // Stop music
-    if (audio) {
-      audio.pause();
-      audio.currentTime = 0;
-      audio.removeAttribute("src");
-      audio.load();
-    }
-
-    // Remove authentication information
-    localStorage.removeItem("token");
-    localStorage.removeItem("userId");
-    localStorage.removeItem("plan");
-
-    // IMPORTANT:
-    // Force a full page reload so the App
-    // reads the new authentication state.
-    window.location.href = "/login";
+  if (audio) {
+    audio.pause();
+    audio.currentTime = 0;
+    audio.removeAttribute("src");
+    audio.load();
   }
+
+  localStorage.removeItem("token");
+  localStorage.removeItem("userId");
+  localStorage.removeItem("plan");
+
+  window.location.href = "/login";
+}
 
   // ====================================================
   // UI

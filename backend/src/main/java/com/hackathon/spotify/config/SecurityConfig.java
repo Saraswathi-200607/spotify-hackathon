@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -35,41 +36,35 @@ public class SecurityConfig {
             HttpSecurity http) throws Exception {
 
         http
-                // Disable CSRF because this is a stateless REST API
                 .csrf(csrf -> csrf.disable())
 
-                // Enable CORS
                 .cors(cors -> {
                 })
 
-                // JWT-based authentication; no server-side sessions
                 .sessionManagement(session -> session.sessionCreationPolicy(
                         SessionCreationPolicy.STATELESS))
 
                 .authorizeHttpRequests(auth -> auth
 
-                        // Allow browser CORS preflight requests
+                        // CORS preflight
                         .requestMatchers(
                                 HttpMethod.OPTIONS,
                                 "/**")
                         .permitAll()
 
-                        // Public authentication and health endpoints
+                        // Public endpoints
                         .requestMatchers(
                                 "/api/auth/**",
                                 "/api/health")
                         .permitAll()
 
-                        // Everything else requires authentication
-                        .anyRequest()
-                        .authenticated())
+                        // Everything else requires JWT
+                        .anyRequest().authenticated())
 
-                // JWT authentication filter
                 .addFilterBefore(
                         authFilter,
                         UsernamePasswordAuthenticationFilter.class)
 
-                // Rate limiting filter
                 .addFilterAfter(
                         rateLimiterContractFilter,
                         AuthFilter.class);
@@ -82,13 +77,11 @@ public class SecurityConfig {
 
         CorsConfiguration config = new CorsConfiguration();
 
-        /*
-         * Frontend URL is provided through the Render
-         * environment variable FRONTEND_URL.
-         */
         String frontendUrl = System.getenv("FRONTEND_URL");
 
-        if (frontendUrl == null || frontendUrl.isBlank()) {
+        if (frontendUrl == null ||
+                frontendUrl.isBlank()) {
+
             frontendUrl = "http://localhost:5173";
         }
 
